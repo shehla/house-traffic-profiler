@@ -1,4 +1,5 @@
 from datetime import datetime
+from termcolor import colored
 import re
 import sys
 import json
@@ -21,7 +22,7 @@ if __name__ == '__main__':
                 delay_controllers[route['route_id']] = DelayController(route)
             resp = delay_controllers[route['route_id']].check_and_run()
             if resp:
-                print('\n\nTime:{0}'.format(str(datetime.today()).split('.')[0]))
+                print colored('\n\nTime:{0}'.format(str(datetime.today()).split('.')[0]), 'blue')
                 rec = {
                     'route_id': route['route_id'],
                     'time': time.time(),

@@ -1,3 +1,4 @@
+from termcolor import colored
 import Queue
 import time
 import statistics
@@ -25,6 +26,7 @@ class DelayController(object):
     def check_and_run(self):
         resp = []
         if time.time() >= self.run_at:
+            print colored('\nRoute:{0}'.format(self.route['route_id']), 'red')
             for model in traffic_models:
                 time_in_mins = route_manager.get_time(self.route['from'], self.route['to'], model)
                 resp.append({
