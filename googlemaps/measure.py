@@ -47,7 +47,5 @@ if __name__ == '__main__':
                     'traffic_time': time_in_mins,
                     'current_delay': delay_controllers[route['route_id']].current_delay,
                 }
-
-                print(json.dumps(rec))
                 route_mgr.report('travel_time_profiles', rec)
         time.sleep(DELAY)
