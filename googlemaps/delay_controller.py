@@ -62,7 +62,7 @@ class DelayController(object):
                 header = '{0} MAXED out delay:{1}'.format(header, self.current_delay)
 
         if std_dev <= 0.01:
-            if self.current_delay * 2.0 <= self.max_delay:
+            if self.current_delay * 1.5 <= self.max_delay:
                 self.current_delay *= 2.0
                 header = '{0} low activity delay:{1}'.format(header, self.current_delay)
             else:

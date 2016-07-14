@@ -36,6 +36,34 @@ class RouteStore(object):
             results.append(dict(r))
         return results
 
+    def get_time_profile(self, route, end_time=time.time(), duration=6*60.0):
+        prof_table = self.get_table('travel_time_profiles')
+        print('route:{0} start:{1} end:{2}'.format(
+            route['route_id'],
+            end_time - duration,
+            end_time,
+        ))
+        recs = prof_table.query_2(
+            route_id__eq=route['route_id'],
+            time__gte=end_time - duration,
+        )
+        results = []
+        for r in recs:
+            try:
+                times = json.loads(r['info'])
+                info = {}
+                for t in times:
+                    info[t.keys()[0]] = t.values()[0]
+                rec = {
+                    'epoch': r['time'],
+                    'info': info,
+                    'current_delay': r['current_delay'],
+                }
+                results.append(rec)
+            except TypeError:
+                print(json.loads(r))
+        return results
+
     # TODO: Delete this and use DynamoStore object.
     def get_connection(self):
         if self.connection is None:
