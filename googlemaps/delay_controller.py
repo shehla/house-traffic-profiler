@@ -2,10 +2,17 @@ import Queue
 import time
 import statistics
 
+import googlemaps
+import googlemaps.route_manager as route_manager
+
+traffic_models = ['optimistic', 'pessimistic', 'best_guess']
+gmaps = googlemaps.Client(key='AIzaSyDNIxQQlAu-LzbpCQhvJDMKtPgborYIO7w')
+
 
 class DelayController(object):
-    def __init__(self, route_id, min_delay=30.0, max_delay=240.0, max_elements=5, THRESHOLD=3, STEP=30):
-        self.route_id = route_id
+    def __init__(self, route, min_delay=60.0, max_delay=900.0, max_elements=5, THRESHOLD=5, traffic_modes=traffic_models):
+        self.route_id = route['route_id']
+        self.route = route
         self.min_delay = min_delay
         self.max_delay = max_delay
         self.current_delay = min_delay
@@ -13,13 +20,20 @@ class DelayController(object):
         self.max_elements = max_elements
         self.THRESHOLD = THRESHOLD
         self.run_at = time.time()
+        self.traffic_models = traffic_models
 
-    #def is_time_to_run(self):
-    #    if time.time() >= self.run_at:
-    #        time_in_mins = get_time(route['from'], route['to'], model)
-    #        self.update_queue(time_in_mins)
-    #        self.run_at += self.current_delay
-    #        return True
+    def check_and_run(self):
+        resp = []
+        if time.time() >= self.run_at:
+            for model in traffic_models:
+                time_in_mins = route_manager.get_time(self.route['from'], self.route['to'], model)
+                resp.append({
+                    model: time_in_mins,
+                })
+                if model == 'best_guess':
+                    self.update_queue(time_in_mins)
+                    self.run_at += self.current_delay
+        return resp
 
     def update_queue(self, travel_time):
         if self.queue.qsize() == self.max_elements:
@@ -45,7 +59,7 @@ class DelayController(object):
                 self.current_delay = self.min_delay
                 header = '{0} MAXED out delay:{1}'.format(header, self.current_delay)
 
-        if std_dev == 0.0:
+        if std_dev <= 0.01:
             if self.current_delay * 2.0 <= self.max_delay:
                 self.current_delay *= 2.0
                 header = '{0} low activity delay:{1}'.format(header, self.current_delay)
