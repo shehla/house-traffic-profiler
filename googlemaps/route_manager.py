@@ -10,7 +10,11 @@ def get_time(_from, _to, traffic_model='best_guess'):
     # Request directions via public transit
     now = datetime.now()
     directions_result = gmaps.directions(_from,_to,mode="driving",departure_time=now,traffic_model=traffic_model)
-    traffic_time = directions_result[0]['legs'][0]['duration_in_traffic']['text']
+    try:
+        traffic_time = directions_result[0]['legs'][0]['duration_in_traffic']['text']
+    except KeyError as e:
+        print('Nothing found :S {0}'.format(e))
+        return None
     if traffic_model == 'best_guess':
         print colored('model:{0} Time in traffic:{1}'.format(traffic_model, traffic_time), 'green')
     else:

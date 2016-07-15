@@ -29,6 +29,10 @@ class DelayController(object):
             print colored('\nRoute:{0}'.format(self.route['route_id']), 'red')
             for model in traffic_models:
                 time_in_mins = route_manager.get_time(self.route['from'], self.route['to'], model)
+                if not time_in_mins:
+                    # if you didn't get a response, wait and then continue
+                    time.sleep(10)
+                    continue
                 resp.append({
                     model: time_in_mins,
                 })

@@ -36,7 +36,7 @@ class RouteStore(object):
             results.append(dict(r))
         return results
 
-    def get_time_profile(self, route, end_time=time.time(), duration=6*60.0):
+    def get_time_profile(self, route, end_time=time.time(), duration=12*60.0*60.0):
         prof_table = self.get_table('travel_time_profiles')
         print('route:{0} start:{1} end:{2}'.format(
             route['route_id'],
@@ -55,7 +55,7 @@ class RouteStore(object):
                 for t in times:
                     info[t.keys()[0]] = t.values()[0]
                 rec = {
-                    'epoch': r['time'],
+                    'epoch': float(r['time']) - 7 * 60 * 60.0,
                     'info': info,
                     'current_delay': r['current_delay'],
                 }
