@@ -20,8 +20,10 @@ class TimeProfiler(object):
         fig = None
         route_store = RouteStore()
         route = {
-            'route_id': 'umairs_place|broadcom', 'from': '3255 Vittori Loop, Dublin',
-                'to': '190 Mathilda Ave, Sunnyvale',
+            'route_id': 'umairs_place|broadcom',
+            #'route_id': 'omer|broadcom',
+            'from': '3255 Vittori Loop, Dublin',
+            'to': '190 Mathilda Ave, Sunnyvale',
         }
         recs=route_store.get_time_profile(
             #{'route_id': 'broadcom|umairs_place'},
@@ -55,9 +57,6 @@ class TimeProfiler(object):
 
         y = utils.sort_list(y, 'epoch')
 
-        #pl.plot(x,y_p)
-        #pl.plot(x,y)
-        #pl.plot(x,y_o)
         fig, graph = plotter.plot_stock_qty(y_p, 'traffic_time', fig=fig, line_type='-', show_xticks=False)
         fig, graph = plotter.plot_stock_qty(y, 'traffic_time', fig=fig, line_type='-', show_xticks=False)
         fig, graph = plotter.plot_stock_qty(y_o, 'traffic_time', fig=fig, line_type='-', show_xticks=True)
