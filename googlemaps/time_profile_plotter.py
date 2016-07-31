@@ -20,7 +20,9 @@ class TimeProfiler(object):
         fig = None
         route_store = RouteStore()
         route = {
-            'route_id': 'umairs_place|broadcom',
+            #'route_id': 'umairs_place|broadcom',
+            #'route_id': 'home|yelp',
+            'route_id': 'yelp|home',
             #'route_id': 'omer|broadcom',
             'from': '3255 Vittori Loop, Dublin',
             'to': '190 Mathilda Ave, Sunnyvale',
@@ -57,11 +59,11 @@ class TimeProfiler(object):
 
         y = utils.sort_list(y, 'epoch')
 
-        fig, graph = plotter.plot_stock_qty(y_p, 'traffic_time', fig=fig, line_type='-', show_xticks=False)
-        fig, graph = plotter.plot_stock_qty(y, 'traffic_time', fig=fig, line_type='-', show_xticks=False)
-        fig, graph = plotter.plot_stock_qty(y_o, 'traffic_time', fig=fig, line_type='-', show_xticks=True)
+        #fig, graph = plotter.plot_stock_qty(y_p, 'traffic_time', fig=fig, line_type='-', show_xticks=False)
+        fig, graph = plotter.plot_stock_qty(y, 'traffic_time', fig=fig, line_type='-', show_xticks=True)
+        #fig, graph = plotter.plot_stock_qty(y_o, 'traffic_time', fig=fig, line_type='-', show_xticks=True)
         start_time = min([r['epoch'] for r in y_p])
-        max_traffic_time = max([r['traffic_time'] for r in y_p])
+        max_traffic_time = max([r['traffic_time'] for r in y])
         addr_str = 'From:{0}  ==>  To:{1}'.format(route['from'], route['to'])
         graph.text(start_time, max_traffic_time * 1.10, addr_str, fontsize=15)
         pl.ylabel('Time in traffic (mins)')
