@@ -32,6 +32,7 @@ def plot_stock_qty(stock_data, qty_name, fig=None, show_xticks=True, line_type='
     plot_numbers_against_dates(stock_data, fig, qty_name, line_type, is_scatter, color, size)
     if show_xticks:
         plot_x_ticks_with_dates(graph, stock_data, False)
+    graph.grid(True)
     return fig, graph
 
 def plot_bar(x_labels, y_vals, fig, c, width=0.35):

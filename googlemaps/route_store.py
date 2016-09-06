@@ -36,16 +36,22 @@ class RouteStore(object):
             results.append(dict(r))
         return results
 
-    def get_time_profile(self, route, end_time=time.time(), duration=12*60.0*60.0):
+    def get_time_profile(self, route, start_time, end_time):
         prof_table = self.get_table('travel_time_profiles')
         print('route:{0} start:{1} end:{2}'.format(
             route['route_id'],
-            end_time - duration,
+            start_time,
             end_time,
         ))
+        # conver GMT to PST
+        # should not hard code like this due to day light changes
+        # TODO: use datetime instead
+        end_time += 7 * 60 * 60.0
+        start_time += 7 * 60 * 60.0
         recs = prof_table.query_2(
             route_id__eq=route['route_id'],
-            time__gte=end_time - duration,
+            #time__gte=end_time - duration,
+            time__between=[start_time, end_time]
         )
         results = []
         for r in recs:
@@ -54,7 +60,10 @@ class RouteStore(object):
                 info = {}
                 for t in times:
                     info[t.keys()[0]] = t.values()[0]
+                if float(r['time']) - 7 * 60 * 60.0 > end_time:
+                    continue
                 rec = {
+                    # convert to PST
                     'epoch': float(r['time']) - 7 * 60 * 60.0,
                     'info': info,
                     'current_delay': r['current_delay'],
