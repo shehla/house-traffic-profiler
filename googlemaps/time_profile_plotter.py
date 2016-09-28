@@ -19,8 +19,7 @@ class TimeProfiler(object):
     def __init__(self):
         self.route_store = RouteStore()
 
-    def fetch_profile(self, route_id, start_time, end_time):
-        fig = None
+    def fetch_profile(self, route_id, start_time, end_time, fig=None, show_text=True):
         route_store = RouteStore()
         route = {
             #'route_id': 'umairs_place|broadcom',
@@ -56,17 +55,19 @@ class TimeProfiler(object):
 
         y = utils.sort_list(y, 'epoch')
 
-        #fig, graph = plotter.plot_stock_qty(y_p, 'traffic_time', fig=fig, line_type='-', show_xticks=False)
         fig, graph = plotter.plot_stock_qty(y, 'traffic_time', fig=fig, line_type='-', show_xticks=True)
-        #fig, graph = plotter.plot_stock_qty(y_o, 'traffic_time', fig=fig, line_type='-', show_xticks=True)
+        #fig, graph = plotter.plot_relative_to_start(y, 'traffic_time', fig=fig, line_type='-', show_xticks=True, lw=1)
         start_time = min([r['epoch'] for r in y])
         max_traffic_time = max([r['traffic_time'] for r in y])
+        min_traffic_time = min([r['traffic_time'] for r in y])
         addr_str = 'From:{0}  ==>  To:{1}'.format(route['from'], route['to'])
-        graph.text(start_time, max_traffic_time * 1.10, addr_str, fontsize=15)
+        if show_text:
+            graph.text(start_time, max_traffic_time * 1.10, addr_str, fontsize=15)
         pl.ylabel('Time in traffic (mins)')
-        pl.ylim([0, max_traffic_time * 1.05])
-        pl.legend(traffic_models, loc='lower left')
-        pl.savefig('image.png', dpi=400)
+        ymin, ymax = graph.get_ylim()
+        if ymax < max_traffic_time * 1.05:
+            pl.ylim([min_traffic_time * 0.9, max_traffic_time * 1.05])
+        return fig
 
 def convert_to_epoch_pst(d):
     datetime_obj_pacific = timezone('US/Pacific').localize(d)
@@ -116,4 +117,11 @@ if __name__ == '__main__':
         end_time,
         (end_time - start_time) / 3600.0,
     ))
-    tp.fetch_profile(cli_args.route_id, start_time, end_time)
+    origin, dest = cli_args.route_id.split('|')
+    reverse_route = '{0}|{1}'.format(dest, origin)
+    fig = tp.fetch_profile(cli_args.route_id, start_time, end_time)
+    fig = tp.fetch_profile(reverse_route, start_time, end_time, fig=fig, show_text=False)
+    #fig = tp.fetch_profile(cli_args.route_id, 1471824000, 1472256000, fig)
+    #fig = tp.fetch_profile(cli_args.route_id, 1471219241, 1471651241, fig)
+    pl.legend(['', 'Reverse route'], loc='upper left')
+    pl.savefig('image.png', dpi=400)

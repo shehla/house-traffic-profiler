@@ -13,8 +13,43 @@ def scatter_values_with_dates(buy_values, buy_dates, color, marker_type):
     buy_dates = [date2num(dd) for dd in dates]
     pl.scatter(buy_dates, buy_values, marker=marker_type, s=40, c=color, edgecolor=color)
 
+def plot_with_dates(recs, qty_name, date_fmt='%m/%d/%Y', fig=None, line_type='-', is_scatter=False, color='b', size=1, lw=1):
+    recs = stock_common.sort_list(recs, 'epoch')
+
+    if not fig:
+        fig = pl.figure()
+    graph = fig.add_subplot(111)
+    dates_num = [r['epoch'] for r in recs]
+    if is_scatter:
+        print('---->', qty_name)
+        graph.scatter(dates_num, [v[qty_name] for v in recs], linestyle=line_type, linewidth=0, color=color, s=size)
+    else:
+        graph.plot(dates_num, [v[qty_name] for v in recs], linestyle=line_type, linewidth=lw, color=color)
+
+    ##################
+    x_range = sorted([int(r['epoch']) for r in recs])
+    num_labels = 8
+    x_gap = (x_range[-1] - x_range[0]) / num_labels
+    x_label_epochs = range(x_range[0], x_range[-1], x_gap)
+    graph.set_xticks(x_label_epochs)
+    x_label_dates = [datetime.datetime.fromtimestamp(e) for e in x_label_epochs]
+    xticks_labels = [d.strftime(date_fmt) for d in x_label_dates]
+    graph.set_xticklabels(xticks_labels)
+    ##################
+    return fig, graph
+
+def plot_relative_to_start(stock_data, qty_name, fig=None, show_xticks=True, line_type='-', is_scatter=False, color='b', size=1, lw=1):
+    start_time = stock_data[0]['epoch']
+    for r in stock_data:
+        r['epoch'] = r['epoch'] - start_time
+    if fig == None:
+        fig = pl.figure(figsize=(12, 6))
+    graph = fig.add_subplot(111)
+    plot_numbers_against_dates(stock_data, fig, qty_name, line_type, is_scatter, color, size)
+    graph.grid(True)
+    return fig, graph
 # stock_data is a list of price recs which has volume, price, date(string) etc
-def plot_stock_qty(stock_data, qty_name, fig=None, show_xticks=True, line_type='-', is_scatter=False, color='b', size=1):
+def plot_stock_qty(stock_data, qty_name, fig=None, show_xticks=True, line_type='-', is_scatter=False, color='b', size=1, lw=1):
     if len(stock_data[0]['date'].split()) == 2:
         is_hourly = True
     else:
@@ -47,7 +82,7 @@ def plot_bar(x_labels, y_vals, fig, c, width=0.35):
 
 def plot_x_ticks_with_dates(graph, current_value, do_all):
     if not do_all:
-        LABEL_DIFF = int(len(current_value) / 8)
+        LABEL_DIFF = int(len(current_value) / 3)
     else:
         LABEL_DIFF = 1
     dates_strings = [dd['date'] for dd in current_value[0::LABEL_DIFF]]
@@ -70,7 +105,7 @@ def plot_numbers_against_numbers(x_vals, y_vals, fig):
 
 # Takes a dict having key/values for amount and date. Plots
 # amounts against dates
-def plot_numbers_against_dates(current_value, fig, property_name='amount', line_type='-', is_scatter=False, color='b', size=1):
+def plot_numbers_against_dates(current_value, fig, property_name='amount', line_type='-', is_scatter=False, color='b', size=1, lw=1):
     graph = fig.add_subplot(111)
     #dates = [dd['date'] for dd in current_value]
     #dates = stock_common.convert_str_to_datetime(dates)
@@ -79,5 +114,5 @@ def plot_numbers_against_dates(current_value, fig, property_name='amount', line_
     if is_scatter:
         graph.scatter(dates_num, [v[property_name] for v in current_value], linestyle=line_type, linewidth=2, color=color, s=size)
     else:
-        graph.plot(dates_num, [v[property_name] for v in current_value], linestyle=line_type, linewidth=2)
+        graph.plot(dates_num, [v[property_name] for v in current_value], linestyle=line_type, linewidth=lw)
     return graph
